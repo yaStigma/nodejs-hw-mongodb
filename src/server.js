@@ -21,7 +21,7 @@ export const setupServer = () => {
     app.get("/", (req, res)=> {
         res.json({
             message: "Start project"
-        })
+        });
     });
 
 
@@ -34,7 +34,7 @@ export const setupServer = () => {
             status: 200,
             message: "Successfully found contacts!",
             data,
-        })
+        });
     });
 
     app.get("/contacts/:contactId", async(req, res, next)=> {
@@ -61,13 +61,13 @@ export const setupServer = () => {
     app.use((req, res)=> {
         res.status(404).json({
             message: 'Not found'
-        })
+        });
     });
 
     app.use((error, req, res, next)=> {
         res.status(500).json({
             message: error.message,
-        })
+        });
     });
 
     const port = Number(env("PORT", 3000));

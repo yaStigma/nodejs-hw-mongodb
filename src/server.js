@@ -20,6 +20,8 @@ export const setupServer = () => {
     });
     app.use(logger);
 
+app.use(express.json());
+
 app.use(contactsRouter);
 
 

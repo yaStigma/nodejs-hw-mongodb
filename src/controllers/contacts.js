@@ -1,6 +1,7 @@
 import * as contacts from '../services/contacts.js';
 import createHttpError from 'http-errors';
 
+
 export const getStartController = async (req, res) => {
     res.json({
         message: "Start project"
@@ -24,7 +25,7 @@ export const getContactByIdController = async(req, res, next)=> {
 
     if(!data) {
         throw createHttpError(404, "Contact not found");
-       
+    
     }
 
     res.json({
@@ -35,6 +36,7 @@ export const getContactByIdController = async(req, res, next)=> {
 };
 
 export const createContactsController = async (req, res, next) => {
+
     const data = await contacts.createContact(req.body);
 
     res.status(201).json({

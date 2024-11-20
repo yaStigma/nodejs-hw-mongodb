@@ -13,12 +13,12 @@ export const setupServer = () => {
     const app = express();
 
     app.use(cors());
-    const logger = pino({
-        transport: {
-            target: "pino-pretty"
-        }
-    });
-    app.use(logger);
+    // const logger = pino({
+    //     transport: {
+    //         target: "pino-pretty"
+    //     }
+    // });
+    // app.use(logger);
 
 app.use(express.json());
 

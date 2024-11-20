@@ -34,6 +34,18 @@ const contactsShema = new Schema(
         versionKey: false,
       },
 );
+
+
+export const keysOfContacts = [
+  '_id',
+  'name',
+  'phoneNumber',
+  'email',
+  'isFavourite',
+  'contactType',
+  'createdAt',
+  'updatedAt',
+];
 contactsShema.post("save", handleSaveError);
 contactsShema.pre("findOneAndUpdate", setUpdateSettings);
 contactsShema.post("findOneAndUpdate", handleSaveError);

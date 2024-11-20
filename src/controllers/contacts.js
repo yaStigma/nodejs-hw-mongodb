@@ -1,7 +1,7 @@
 import * as contacts from '../services/contacts.js';
 import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
-
+import { parseSortParams } from '../utils/parseSortParams.js';
 export const getStartController = async (req, res) => {
     res.json({
         message: "Start project"
@@ -11,10 +11,9 @@ export const getStartController = async (req, res) => {
 export const getContactsController =  async (req, res, next)=> {
          
     const {page, perPage} = parsePaginationParams(req.query);
+    const { sortBy, sortOrder } = parseSortParams(req.query);
 
-    console.log(page);
-    console.log(perPage);
-    const data = await contacts.getAllContacts({page, perPage});
+    const data = await contacts.getAllContacts({page, perPage, sortBy, sortOrder,});
          
          res.json({
         status: 200,

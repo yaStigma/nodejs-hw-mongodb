@@ -1,6 +1,9 @@
 // import createHttpError from "http-errors";
 
-import { login, registerUser } from "../services/auth.js";
+import { login, registerUser, refreshUserSession } from "../services/auth.js";
+
+
+
 
 const setupSession = (res, session)=> {
     const {_id, refreshToken, refreshTokenValidUntil} = session;
@@ -40,19 +43,19 @@ export const registerController = async (req, res) => {
     });
 };
 
-// export const refreshSessionController = async(req, res)=> {
-//     const session = await refreshUserSession(req.cookies);
+export const refreshSessionController = async(req, res)=> {
+    const session = await refreshUserSession(req.cookies);
 
-//     setupSession(res, session);
+    setupSession(res, session);
 
-//     res.json({
-//         status: 200,
-//         message: "Successfully refresh session",
-//         data: {
-//             accessToken: session.accessToken,
-//         }
-//     })
-// }
+    res.json({
+        status: 200,
+        message: "Successfully refresh session",
+        data: {
+            accessToken: session.accessToken,
+        }
+    });
+};
 
 // export const logoutController = async(req, res)=> {
 //     if(req.cookies.sessionId) {

@@ -71,6 +71,8 @@ return SessionCollection.create({
 
 // export const logout = sessionId => SessionCollection.deleteOne({_id: sessionId});
 
+
+
 export const findSession = filter => SessionCollection.findOne(filter);
 
 export const findUser = filter => UsersCollection.findOne(filter);

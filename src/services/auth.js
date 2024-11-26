@@ -69,7 +69,7 @@ return SessionCollection.create({
 });
 };
 
-// export const logout = sessionId => SessionCollection.deleteOne({_id: sessionId});
+export const logout = sessionId => SessionCollection.deleteOne({_id: sessionId});
 
 
 

@@ -1,6 +1,6 @@
 // import createHttpError from "http-errors";
 
-import { login, registerUser, refreshUserSession } from "../services/auth.js";
+import { login, registerUser, refreshUserSession, logout } from "../services/auth.js";
 
 
 
@@ -57,13 +57,13 @@ export const refreshSessionController = async(req, res)=> {
     });
 };
 
-// export const logoutController = async(req, res)=> {
-//     if(req.cookies.sessionId) {
-//         await logout(req.cookies.sessionId);
-//     }
+export const logoutController = async(req, res)=> {
+    if(req.cookies.sessionId) {
+        await logout(req.cookies.sessionId);
+    }
 
-//     res.clearCookie("sessionId");
-//     res.clearCookie("refreshToken");
+    res.clearCookie("sessionId");
+    res.clearCookie("refreshToken");
 
-//     res.status(204).send();
-// }
+    res.status(204).send();
+};

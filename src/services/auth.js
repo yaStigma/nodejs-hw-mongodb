@@ -1,79 +1,81 @@
-import createHttpError from "http-errors";
-import { UsersCollection } from "../db/models/User.js";
-import bcrypt from "bcrypt";
-import { SessionCollection } from "../db/models/Session.js";
-import {randomBytes} from "crypto";
-import { accessTokenLifetime, refreshTokenLifetime } from "../constants/users.js";
+import createHttpError from 'http-errors';
+import { UsersCollection } from '../db/models/User.js';
+import bcrypt from 'bcrypt';
+import { SessionCollection } from '../db/models/Session.js';
+import { randomBytes } from 'crypto';
+import {
+  accessTokenLifetime,
+  refreshTokenLifetime,
+} from '../constants/users.js';
 
-const createSession = ()=> {
-    const accessToken = randomBytes(30).toString("base64");
-    const refreshToken = randomBytes(30).toString("base64");
+const createSession = () => {
+  const accessToken = randomBytes(30).toString('base64');
+  const refreshToken = randomBytes(30).toString('base64');
 
-    return {
-        accessToken,
-        refreshToken,
-        accessTokenValidUntil: Date.now() + accessTokenLifetime,
-        refreshTokenValidUntil: Date.now() + refreshTokenLifetime,
-    };
+  return {
+    accessToken,
+    refreshToken,
+    accessTokenValidUntil: Date.now() + accessTokenLifetime,
+    refreshTokenValidUntil: Date.now() + refreshTokenLifetime,
+  };
 };
 
+export const registerUser = async (payload) => {
+  const { email, password } = payload;
+  const user = await UsersCollection.findOne({ email });
+  if (user) {
+    throw createHttpError(409, 'Email in use');
+  }
+  const hashPassword = await bcrypt.hash(password, 10);
 
-export const registerUser = async payload => {
-    const {email, password} = payload;
-    const user = await UsersCollection.findOne({email});
-    if(user) {
-        throw createHttpError(409, "Email in use");
-    }
-    const hashPassword = await bcrypt.hash(password, 10);
- 
-    return UsersCollection.create({...payload, password: hashPassword});
+  return UsersCollection.create({ ...payload, password: hashPassword });
 };
 
+export const login = async ({ email, password }) => {
+  const user = await UsersCollection.findOne({ email });
+  if (!user) {
+    throw createHttpError(401, 'Email or password invalid');
+  }
+  const passwordCompare = await bcrypt.compare(password, user.password);
+  if (!passwordCompare) {
+    throw createHttpError(401, 'Email or password invalid');
+  }
 
-export const login = async ({email, password}) => {
-const user = await UsersCollection.findOne({email});
-if (!user) {
-    throw createHttpError(401, "Email or password invalid");
-}
-const passwordCompare = await bcrypt.compare(password, user.password);
-if(!passwordCompare) {
-    throw createHttpError(401, "Email or password invalid");
-}
+  await SessionCollection.deleteOne({ userId: user._id });
 
-await SessionCollection.deleteOne({userId: user._id});
+  const newSession = createSession();
 
-const newSession = createSession();
-
-return SessionCollection.create({
+  return SessionCollection.create({
     userId: user._id,
-   ...newSession,
-});
+    ...newSession,
+  });
 };
 
-export const refreshUserSession = async({sessionId, refreshToken})=> {
-const session = await SessionCollection.findOne({_id: sessionId, refreshToken});
-if(!session) {
-    throw createHttpError(401, "Session not found");
-}
-if(Date.now() > session.refreshTokenValidUntil) {
-    throw createHttpError(401, "Session token expired");
-}
+export const refreshUserSession = async ({ sessionId, refreshToken }) => {
+  const session = await SessionCollection.findOne({
+    _id: sessionId,
+    refreshToken,
+  });
+  if (!session) {
+    throw createHttpError(401, 'Session not found');
+  }
+  if (Date.now() > session.refreshTokenValidUntil) {
+    throw createHttpError(401, 'Session token expired');
+  }
 
-await SessionCollection.deleteOne({_id: session._id});
+  await SessionCollection.deleteOne({ _id: session._id });
 
-const newSession = createSession();
+  const newSession = createSession();
 
-return SessionCollection.create({
+  return SessionCollection.create({
     userId: session.userId,
-   ...newSession,
-});
+    ...newSession,
+  });
 };
 
-export const logout = sessionId => SessionCollection.deleteOne({_id: sessionId});
+export const logout = (sessionId) =>
+  SessionCollection.deleteOne({ _id: sessionId });
 
+export const findSession = (filter) => SessionCollection.findOne(filter);
 
-
-export const findSession = filter => SessionCollection.findOne(filter);
-
-export const findUser = filter => UsersCollection.findOne(filter);
-
+export const findUser = (filter) => UsersCollection.findOne(filter);

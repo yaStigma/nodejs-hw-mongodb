@@ -2,6 +2,9 @@ import * as contacts from '../services/contacts.js';
 import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
+import { saveFileToUploadDir } from '../utils/saveFileToUploadDir.js';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { env } from '../utils/env.js';
 
 export const getStartController = async (req, res) => {
   res.json({
@@ -47,7 +50,20 @@ export const getContactByIdController = async (req, res, next) => {
 
 export const createContactsController = async (req, res, next) => {
   const { _id: userId } = req.user;
-  const data = await contacts.createContact({ ...req.body, userId });
+  const photo = req.file;
+  let photoUrl;
+  if (photo) {
+    if (env('ENABLE_CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const data = await contacts.createContact({
+    ...req.body,
+    photo: photoUrl,
+    userId,
+  });
 
   res.status(201).json({
     status: 201,
@@ -59,9 +75,23 @@ export const createContactsController = async (req, res, next) => {
 export const upsertContactsController = async (req, res) => {
   const { contactId } = req.params;
   const { _id: userId } = req.user;
-  const data = await contacts.updateContact(contactId, userId, req.body, {
-    upsert: true,
-  });
+  const photo = req.file;
+  let photoUrl;
+  if (photo) {
+    if (env('CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const data = await contacts.updateContact(
+    contactId,
+    userId,
+    { ...req.body, photo: photoUrl },
+    {
+      upsert: true,
+    },
+  );
 
   if (!data) {
     throw createHttpError(404, 'Contact not found');
@@ -78,8 +108,19 @@ export const upsertContactsController = async (req, res) => {
 export const patchContactsController = async (req, res) => {
   const { contactId } = req.params;
   const { _id: userId } = req.user;
-
-  const data = await contacts.updateContact(contactId, userId, req.body);
+  const photo = req.file;
+  let photoUrl;
+  if (photo) {
+    if (env('CLOUDINARY') === 'true') {
+      photoUrl = await saveFileToCloudinary(photo);
+    } else {
+      photoUrl = await saveFileToUploadDir(photo);
+    }
+  }
+  const data = await contacts.updateContact(contactId, userId, {
+    ...req.body,
+    photo: photoUrl,
+  });
 
   if (!data) {
     throw createHttpError(404, 'Contact not found');

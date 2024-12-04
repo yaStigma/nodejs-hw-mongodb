@@ -1,0 +1,35 @@
+tags:
+  - Auth
+summary: Logout the user
+operationId: logoutUser
+description: 'Log out the user by invalidating the refresh token'
+security:
+  - bearerAuth: []
+requestBody:
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - refreshToken
+        properties:
+          refreshToken:
+            type: string
+            description: Valid refresh token
+            example: 'k/ypQ791AB7AW7AQGDDkg0QiW1yR8hqJh9EMaPuN'
+
+responses:
+  '204':
+    description: Successfully logout user
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - status
+          properties:
+            status:
+              type: integer
+              example: 204
+  '401':
+    $ref: '../../../components/responses/401.yaml'
